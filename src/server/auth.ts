@@ -1,11 +1,7 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
-import {
-  getServerSession,
-  type NextAuthOptions,
-  type DefaultSession,
-} from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import { type DefaultSession, getServerSession, type NextAuthOptions } from "next-auth";
+import GitHubProvider from "next-auth/providers/github";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
 
@@ -19,7 +15,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
+      event: IEvent | null;
       // role: UserRole;
     } & DefaultSession["user"];
   }
@@ -37,19 +33,27 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
+    session: async ({ session, user }) => ({
       ...session,
       user: {
         ...session.user,
         id: user.id,
+        event: (await prisma.user.findUnique({
+          where: {
+            id: user.id,
+          },
+          select: {
+            event: true,
+          },
+        }))?.event,
       },
     }),
   },
   adapter: PrismaAdapter(prisma),
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    GitHubProvider({
+      clientId: env.GITHUB_ID,
+      clientSecret: env.GITHUB_SECRET,
     }),
     /**
      * ...add more providers here.
