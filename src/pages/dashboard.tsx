@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import { api } from "~/utils/api";
 
@@ -20,6 +20,23 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col justify-center items-center w-full">
+        {session
+          ? (
+            <button
+              onClick={() => void signOut()}
+              className="py-2 px-4 mt-10 font-semibold text-white rounded ml-[1500px] drop-shadow-lg bg-sky-500"
+            >
+              logout
+            </button>
+          )
+          : (
+            <button
+              onClick={() => void signIn()}
+              className="py-2 px-4 mt-10 font-semibold text-white rounded ml-[1500px] drop-shadow-lg bg-sky-500"
+            >
+              login
+            </button>
+          )}
         <div className="flex flex-col py-20 px-10 mt-10 w-4/5 min-h-screen border-l-4 border-indigo-500">
           <h1 className="mb-32 w-full text-2xl font-extrabold tracking-tight text-center text-gray-800 drop-shadow-lg sm:text-[5rem]">
             These are all the anonymous responses!
@@ -63,7 +80,7 @@ export default function Dashboard() {
                 <p className="p-2 py-6 w-4/12 text-9xl bg-white rounded-full">📣</p>
               </div>
               <p className="py-3 px-5 mx-10 mt-10 w-3/4 text-2xl font-semibold text-gray-600 bg-white rounded-xl">
-                https://{slug}/say.me
+                https://localhost:3000/{slug}
               </p>
               <button className="py-2 mx-10 mt-10 w-1/3 text-2xl font-semibold text-white rounded-2xl border-2 border-white hover:scale-105">
                 copy link
