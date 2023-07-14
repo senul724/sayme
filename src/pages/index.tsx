@@ -81,7 +81,7 @@ export default function Home() {
     }
 
     toast.success("event created!");
-    router.push("/slugValue");
+    router.push("/dashboard");
   };
 
   return (
