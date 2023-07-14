@@ -1,13 +1,17 @@
 import debounce from "lodash.debounce";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
 import { api } from "~/utils/api";
 import { keywords } from "~/utils/data";
 import { slugRegex } from "~/utils/validation";
 
 export default function Home() {
   const { data: sessionData } = useSession();
+  const router = useRouter();
+
   const [validating, setValidating] = useState<boolean>(false);
   const [isValid, setIsValid] = useState<boolean>(false);
   const [slugError, setSLugError] = useState<string | null>(null);
@@ -67,7 +71,17 @@ export default function Home() {
     if (slugError || !isValid) {
       return;
     }
-    await createEvent({ slug: slugValue, userId: sessionData.user.id });
+    toast.loading("creating your page...");
+    const { success } = await createEvent({ slug: slugValue, userId: sessionData.user.id });
+    toast.dismiss();
+
+    if (!success) {
+      toast.error("creationg failed! try again later");
+      return;
+    }
+
+    toast.success("event created!");
+    router.push("/slugValue");
   };
 
   return (
