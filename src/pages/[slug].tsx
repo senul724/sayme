@@ -1,11 +1,28 @@
 import Head from "next/head";
+import { useRef } from "react";
+import { toast } from "react-hot-toast";
 import { prisma } from "~/server/db";
+import { api } from "~/utils/api";
 
 export default function Page(props: { event: { user: { name: string; image: string }; slug: string } | null }) {
   const { event } = props;
   if (!event) {
     return;
   }
+
+  const { mutateAsync: comment, isLoading: commenting } = api.event.sendComment.useMutation();
+
+  const msgRef = useRef<HTMLTextAreaElement>(null);
+
+  const sendComment = async () => {
+    if (!msgRef.current || commenting) {
+      return;
+    }
+    toast.loading("sending comments...");
+    const { success } = await comment({ content: msgRef.current.value, slug: event.slug, sender: "anonymous" });
+    toast.dismiss();
+    success ? toast.success("successfully sent the comment!") : toast.error("sending failed! try again later");
+  };
   return (
     <>
       <Head>
@@ -16,13 +33,20 @@ export default function Page(props: { event: { user: { name: string; image: stri
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#DDB500]">
         <div className="container flex flex-col gap-12 justify-center items-center py-16 px-4">
           <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
-            send anonymous comment to {event.user.name}
+            send anonymous comment to
+          </h1>
+          <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
+            {event.user.name}
           </h1>
           <textarea
             className="p-5 mt-10 w-1/2 h-32 text-lg rounded-lg border-none drop-shadow-lg"
+            ref={msgRef}
             placeholder="just speak from your heart...."
           />
-          <button className="py-2 px-4 w-1/4 text-xl font-bold text-gray-800 bg-white rounded-xl border-2 border drop-shadow border-[#CCA400] hover:bg-gray-100">
+          <button
+            className="py-2 px-4 w-1/4 text-xl font-bold text-gray-800 bg-white rounded-xl border-2 border drop-shadow border-[#CCA400] hover:bg-gray-100"
+            onClick={() => void sendComment()}
+          >
             Send <span className="ml-4 text-2xl">🚀</span>
           </button>
         </div>
@@ -50,12 +74,13 @@ export async function getStaticPaths() {
 }
 
 // This also gets called at build time
-export async function getStaticProps(payload: { slug: string }) {
+export async function getStaticProps(props: { params: { slug: string } }) {
   // params contains the post `id`.
   // If the route is like /posts/1, then params.id is 1
+  const { params } = props;
   const event = await prisma.event.findUnique({
     where: {
-      slug: payload.slug,
+      slug: params.slug,
     },
     select: {
       slug: true,
