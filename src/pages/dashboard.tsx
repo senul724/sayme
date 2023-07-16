@@ -10,6 +10,7 @@ export default function Dashboard() {
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    staleTime: 6000,
   });
 
   return (
