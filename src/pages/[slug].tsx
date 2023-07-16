@@ -1,10 +1,11 @@
+import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useRef } from "react";
 import { toast } from "react-hot-toast";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
-export default function Page(props: { event: { user: { name: string; image: string }; slug: string } | null }) {
+export default function Page(props: InferGetStaticPropsType<typeof getStaticProps>) {
   const { event } = props;
   if (!event) {
     return;
@@ -70,7 +71,7 @@ export async function getStaticPaths() {
 
   // We'll pre-render only these paths at build time.
   // { fallback: false } means other routes should 404.
-  return { paths, fallback: false };
+  return { paths, fallback: "blocking" };
 }
 
 // This also gets called at build time
