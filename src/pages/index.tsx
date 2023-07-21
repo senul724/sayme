@@ -60,7 +60,6 @@ export default function Home() {
 
   const createPage = async () => {
     if (!sessionData) {
-      console.log("validating");
       return;
     }
 

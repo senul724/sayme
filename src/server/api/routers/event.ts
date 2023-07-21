@@ -43,7 +43,6 @@ export const eventRouter = createTRPCRouter({
         },
       });
 
-      console.log(owner?.user_id, "=>", ctx.session.user.id);
       if (!owner || owner.user_id !== ctx.session.user.id) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
