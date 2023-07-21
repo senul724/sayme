@@ -1,4 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { Event } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
 import { type DefaultSession, getServerSession, type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
@@ -15,7 +16,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      event: IEvent | null;
+      event: Event | null;
       // role: UserRole;
     } & DefaultSession["user"];
   }
@@ -26,28 +27,56 @@ declare module "next-auth" {
   // }
 }
 
+declare module "next-auth/jwt" {
+  /** Returned by the `jwt` callback and `getToken`, when using JWT sessions */
+  interface JWT {
+    refreshTokenExpires?: number;
+    accessTokenExpires?: number;
+    refreshToken?: string;
+    id?: string;
+    event: Event | null | undefined;
+    token: string;
+    exp?: number;
+    iat?: number;
+    jti?: string;
+  }
+}
+
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
  * @see https://next-auth.js.org/configuration/options
  */
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    session: async ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        event: (await prisma.user.findUnique({
-          where: {
-            id: user.id,
-          },
-          select: {
-            event: true,
-          },
-        }))?.event,
-      },
-    }),
+    jwt: async ({ token, account }) => {
+      token.userId = token.sub;
+      token.event = (await prisma.user.findUnique({
+        where: {
+          id: token.sub,
+        },
+        select: {
+          event: true,
+        },
+      }))?.event;
+      token.account = account;
+      return token;
+    },
+    session: async ({ session, token }) => {
+      const { event, userId } = token;
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: userId,
+          event,
+        },
+      };
+    },
   },
   adapter: PrismaAdapter(prisma),
   providers: [
