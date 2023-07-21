@@ -5,7 +5,9 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 export const eventRouter = createTRPCRouter({
   // sending comments
   sendComment: protectedProcedure
-    .input(z.object({ slug: z.string(), content: z.string(), sender: z.string(), time: z.string().optional() }))
+    .input(
+      z.object({ slug: z.string(), content: z.string(), sender: z.string().max(181), time: z.string().optional() }),
+    )
     .mutation(async ({ input, ctx }) => {
       const { sender, slug, content, time } = input;
       try {

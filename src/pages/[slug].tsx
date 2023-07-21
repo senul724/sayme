@@ -1,6 +1,6 @@
 import { InferGetStaticPropsType } from "next";
 import Head from "next/head";
-import { useRef } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
@@ -13,15 +13,15 @@ export default function Page(props: InferGetStaticPropsType<typeof getStaticProp
 
   const { mutateAsync: comment, isLoading: commenting } = api.event.sendComment.useMutation();
 
-  const msgRef = useRef<HTMLTextAreaElement>(null);
+  const [msg, setMsg] = useState("");
 
   const sendComment = async () => {
-    if (!msgRef.current || commenting) {
+    if (commenting) {
       return;
     }
     toast.loading("sending comments...");
     const { success } = await comment({
-      content: msgRef.current.value,
+      content: msg,
       slug: event.slug,
       sender: "anonymous",
       time: String(Date.now()),
@@ -37,7 +37,7 @@ export default function Page(props: InferGetStaticPropsType<typeof getStaticProp
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#DDB500]">
-        <div className="container flex flex-col gap-12 justify-center items-center py-16 px-4">
+        <div className="container flex flex-col justify-center items-center py-16 px-4 sm:gap-12">
           <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
             send anonymous comment to
           </h1>
@@ -45,12 +45,14 @@ export default function Page(props: InferGetStaticPropsType<typeof getStaticProp
             {event.user.name}
           </h1>
           <textarea
-            className="p-5 mt-10 w-1/2 h-32 text-lg rounded-lg border-none drop-shadow-lg"
-            ref={msgRef}
+            className="p-5 mt-16 mb-2 w-3/4 h-32 text-lg rounded-lg border-none sm:mt-10 sm-mb-0 sm:w-1/2 drop-shadow-lg"
+            maxLength={180}
+            onChange={(e) => setMsg(e.currentTarget.value)}
             placeholder="just speak from your heart...."
           />
+          <p className="mb-10 font-bold text-white sm:-mt-10 drop-shadow">{msg.length}/180 charactors</p>
           <button
-            className="py-2 px-4 w-1/4 text-xl font-bold text-gray-800 bg-white rounded-xl border-2 border drop-shadow border-[#CCA400] hover:bg-gray-100"
+            className="py-2 px-4 sm:w-1/4 w-1/2  text-xl font-bold text-gray-800 bg-white rounded-xl border-2 border drop-shadow border-[#CCA400] hover:bg-gray-100"
             onClick={() => void sendComment()}
           >
             Send <span className="ml-4 text-2xl">🚀</span>
