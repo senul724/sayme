@@ -20,7 +20,12 @@ export default function Page(props: InferGetStaticPropsType<typeof getStaticProp
       return;
     }
     toast.loading("sending comments...");
-    const { success } = await comment({ content: msgRef.current.value, slug: event.slug, sender: "anonymous" });
+    const { success } = await comment({
+      content: msgRef.current.value,
+      slug: event.slug,
+      sender: "anonymous",
+      time: String(Date.now()),
+    });
     toast.dismiss();
     success ? toast.success("successfully sent the comment!") : toast.error("sending failed! try again later");
   };

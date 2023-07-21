@@ -5,14 +5,15 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 export const eventRouter = createTRPCRouter({
   // sending comments
   sendComment: protectedProcedure
-    .input(z.object({ slug: z.string(), content: z.string(), sender: z.string() }))
+    .input(z.object({ slug: z.string(), content: z.string(), sender: z.string(), time: z.string().optional() }))
     .mutation(async ({ input, ctx }) => {
-      const { sender, slug, content } = input;
+      const { sender, slug, content, time } = input;
       try {
         await ctx.prisma.comment.create({
           data: {
             name: sender,
             content,
+            created_At: time,
             for: {
               connect: {
                 slug,
@@ -42,6 +43,7 @@ export const eventRouter = createTRPCRouter({
         },
       });
 
+      console.log(owner?.user_id, "=>", ctx.session.user.id);
       if (!owner || owner.user_id !== ctx.session.user.id) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }

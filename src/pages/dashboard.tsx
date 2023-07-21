@@ -1,18 +1,12 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+import { Comment } from "@prisma/client";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { signOut } from "next-auth/react";
 import Head from "next/head";
-import { api } from "~/utils/api";
+import { getServerAuthSession } from "~/server/auth";
+import { prisma } from "~/server/db";
+import { getDate } from "~/utils/date";
 
-export default function Dashboard() {
-  const { data: session } = useSession();
-  const slug = session?.user.event?.slug;
-
-  const { data: comments, isLoading: commentsLoading } = api.event.getComments.useQuery({ slug: slug ? slug : "" }, {
-    refetchIntervalInBackground: false,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    staleTime: 6000,
-  });
-
+export default function Dashboard({ comments, slug }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
       <Head>
@@ -21,30 +15,19 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex flex-col justify-center items-center w-full">
-        {session
-          ? (
-            <button
-              onClick={() => void signOut()}
-              className="py-2 px-4 mt-10 font-semibold text-white rounded ml-[1500px] drop-shadow-lg bg-sky-500"
-            >
-              logout
-            </button>
-          )
-          : (
-            <button
-              onClick={() => void signIn()}
-              className="py-2 px-4 mt-10 font-semibold text-white rounded ml-[1500px] drop-shadow-lg bg-sky-500"
-            >
-              login
-            </button>
-          )}
+        <button
+          onClick={() => void signOut()}
+          className="py-2 px-4 mt-10 font-semibold text-white rounded ml-[1500px] drop-shadow-lg bg-sky-500"
+        >
+          logout
+        </button>
         <div className="flex flex-col py-20 px-10 mt-10 w-4/5 min-h-screen border-l-4 border-indigo-500">
           <h1 className="mb-32 w-full text-2xl font-extrabold tracking-tight text-center text-gray-800 drop-shadow-lg sm:text-[5rem]">
             These are all the anonymous responses!
           </h1>
           <div className="flex w-full">
             <div className="flex flex-col w-3/5">
-              {comments && comments.length > 0 && !commentsLoading
+              {comments && comments.length > 0
                 ? (
                   <>
                     {comments.map((el, index) => (
@@ -53,24 +36,15 @@ export default function Dashboard() {
                         key={index}
                       >
                         {el.content}
+                        <span className="ml-5">{getDate(el.created_At ? Number(el.created_At) : null)}</span>
                       </p>
                     ))}
                   </>
                 )
                 : (
-                  <>
-                    {commentsLoading
-                      ? (
-                        <p className="py-2 px-4 w-3/4 text-xl font-medium text-left bg-yellow-100 rounded drop-shadow-lg">
-                          loading responses...
-                        </p>
-                      )
-                      : (
-                        <p className="py-2 px-4 w-3/4 text-xl font-medium text-left bg-red-100 rounded drop-shadow-lg">
-                          opps! no responses yet
-                        </p>
-                      )}
-                  </>
+                  <p className="py-2 px-4 w-3/4 text-xl font-medium text-left bg-red-100 rounded drop-shadow-lg">
+                    opps! no responses yet
+                  </p>
                 )}
             </div>
             <div className="flex flex-col w-2/5 min-h-screen rounded-xl bg-sky-700 drop-shadow-xl">
@@ -93,3 +67,25 @@ export default function Dashboard() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<{
+  comments: Comment[];
+  slug: string;
+}> = async (ctx) => {
+  const session = await getServerAuthSession(ctx);
+  const slug = session?.user.event?.slug;
+
+  if (!slug) {
+    return { props: { comments: [], slug: "" } };
+  }
+  const comments = (await prisma.event.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      comments: true,
+    },
+  }))?.comments;
+
+  return { props: { comments: comments ? comments : [], slug } };
+};
