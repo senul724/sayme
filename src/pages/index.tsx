@@ -92,9 +92,9 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#DDB500]">
-        <div className="container flex flex-col gap-12 justify-center items-center py-16 px-4">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
-            Hear what your freinds have to say
+        <div className="container flex flex-col gap-12 justify-center items-center py-16">
+          <h1 className="text-5xl font-extrabold tracking-tight text-center text-white drop-shadow-lg sm:text-[5rem]">
+            Hear what your friends<br className="sm:hide" /> have to say
           </h1>
           <h1 className="-mt-10 text-5xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
             anonymously!
