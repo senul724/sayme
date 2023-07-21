@@ -39,10 +39,10 @@ export default function Dashboard({ comments, slug }: InferGetServerSidePropsTyp
                         className="flex py-2 px-4 mb-5 w-full rounded sm:w-11/12 bg-sky-100 drop-shadow-lg"
                         key={index}
                       >
-                        <p className="w-4/5 font-medium text-left sm:w-5/12 sm:text-xl text-[16px]">
+                        <p className="w-4/5 font-medium text-left sm:text-xl text-[16px] sm:w-4/3">
                           {el.content}
                         </p>
-                        <p className="w-1/5 text-xs text-right text-gray-600 sm:w-5/12 sm:text-sm bg-sky-100">
+                        <p className="w-1/5 text-xs text-right text-gray-600 sm:w-1/3 sm:text-sm">
                           {getDate(el.created_At ? Number(el.created_At) : null)}
                         </p>
                       </div>
