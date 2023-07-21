@@ -90,7 +90,7 @@ export const eventRouter = createTRPCRouter({
             },
           },
         });
-        return { success: false };
+        return { success: true };
       } catch {
         return { success: false };
       }

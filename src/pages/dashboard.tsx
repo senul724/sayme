@@ -2,11 +2,15 @@ import { Comment } from "@prisma/client";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { signOut } from "next-auth/react";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
 import { getServerAuthSession } from "~/server/auth";
 import { prisma } from "~/server/db";
 import { getDate } from "~/utils/date";
+import { getBaseUrl } from "~/utils/url";
 
 export default function Dashboard({ comments, slug }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -31,13 +35,17 @@ export default function Dashboard({ comments, slug }: InferGetServerSidePropsTyp
                 ? (
                   <>
                     {comments.map((el, index) => (
-                      <p
-                        className="py-2 px-4 mb-5 w-11/12 text-xl font-medium text-left rounded bg-sky-100 drop-shadow-lg"
-                        key={index}
-                      >
-                        {el.content}
-                        <span className="ml-5">{getDate(el.created_At ? Number(el.created_At) : null)}</span>
-                      </p>
+                      <div className="flex py-2 px-4 mb-5 w-11/12 rounded bg-sky-100 drop-shadow-lg">
+                        <p
+                          className="w-5/12 text-xl font-medium text-left"
+                          key={index}
+                        >
+                          {el.content}
+                        </p>
+                        <p className="w-5/12 text-sm text-right text-gray-600 bg-sky-100">
+                          {getDate(el.created_At ? Number(el.created_At) : null)}
+                        </p>
+                      </div>
                     ))}
                   </>
                 )
@@ -55,11 +63,27 @@ export default function Dashboard({ comments, slug }: InferGetServerSidePropsTyp
                 <p className="p-2 py-6 w-4/12 text-9xl bg-white rounded-full">📣</p>
               </div>
               <p className="py-3 px-5 mx-10 mt-10 w-3/4 text-2xl font-semibold text-gray-600 bg-white rounded-xl">
-                https://localhost:3000/{slug}
+                {getBaseUrl()}/{slug}
               </p>
-              <button className="py-2 mx-10 mt-10 w-1/3 text-2xl font-semibold text-white rounded-2xl border-2 border-white hover:scale-105">
-                copy link
-              </button>
+              <div className="flex justify-around items-center w-5/6">
+                <button
+                  className="py-2 mx-10 mt-10 w-1/3 text-2xl font-semibold text-white rounded-2xl border-2 border-white hover:scale-105"
+                  onClick={() => {
+                    toast.success("link copied to clipboard!");
+                    navigator.clipboard.writeText(
+                      `${getBaseUrl()}/${slug}`,
+                    );
+                  }}
+                >
+                  copy link
+                </button>
+                <button
+                  className="py-2 mx-10 mt-10 w-1/3 text-2xl font-semibold text-white rounded-2xl border-2 border-white hover:scale-105"
+                  onClick={() => void router.push(`${getBaseUrl()}/${slug}`)}
+                >
+                  visit page
+                </button>
+              </div>
             </div>
           </div>
         </div>

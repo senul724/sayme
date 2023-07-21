@@ -9,7 +9,7 @@ import { keywords } from "~/utils/data";
 import { slugRegex } from "~/utils/validation";
 
 export default function Home() {
-  const { data: sessionData } = useSession();
+  const { data: sessionData, update: updateSession } = useSession();
   const router = useRouter();
 
   const [validating, setValidating] = useState<boolean>(false);
@@ -80,6 +80,7 @@ export default function Home() {
       return;
     }
 
+    await updateSession();
     toast.success("event created!");
     router.push("/dashboard");
   };
