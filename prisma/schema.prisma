@@ -22,11 +22,11 @@ model Example {
 }
 
 model Comment {
-  id         Int    @id @default(autoincrement())
-  created_At Int?
+  id         Int     @id @default(autoincrement())
+  created_At String?
   name       String
   content    String
-  for        Event  @relation(fields: [event_slug], references: [slug])
+  for        Event   @relation(fields: [event_slug], references: [slug])
   event_slug String
 }
 
