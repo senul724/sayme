@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { Event } from "@prisma/client";
+import type { Event } from "@prisma/client";
 import { type GetServerSidePropsContext } from "next";
 import { type DefaultSession, getServerSession, type NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
       token.account = account;
       return token;
     },
-    session: async ({ session, token }) => {
+    session: ({ session, token }) => {
       const { event, userId } = token;
 
       return {

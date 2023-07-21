@@ -54,7 +54,7 @@ export default function Home() {
 
   useEffect(() => {
     // this is done to avoid displaying errors in the initial state
-    slugValue !== "" && checkSlugValue(slugValue);
+    slugValue !== "" && void checkSlugValue(slugValue);
     // eslint-disable-next-line
   }, [slugValue, checkSlug]);
 
@@ -81,7 +81,7 @@ export default function Home() {
 
     await updateSession();
     toast.success("event created!");
-    router.push("/dashboard");
+    await router.push("/dashboard");
   };
 
   return (
@@ -94,7 +94,7 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#DDB500]">
         <div className="container flex flex-col gap-12 justify-center items-center py-16">
           <h1 className="text-5xl font-extrabold tracking-tight text-center text-white drop-shadow-lg sm:text-[5rem]">
-            Hear what your friends<br className="sm:hide" /> have to say
+            Hear what your freinds have to say
           </h1>
           <h1 className="-mt-10 text-5xl font-extrabold tracking-tight text-white drop-shadow-lg sm:text-[5rem]">
             anonymously!

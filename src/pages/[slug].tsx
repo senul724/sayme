@@ -1,4 +1,4 @@
-import { InferGetStaticPropsType } from "next";
+import type { InferGetStaticPropsType } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -6,14 +6,13 @@ import { prisma } from "~/server/db";
 import { api } from "~/utils/api";
 
 export default function Page(props: InferGetStaticPropsType<typeof getStaticProps>) {
+  const [msg, setMsg] = useState("");
+  const { mutateAsync: comment, isLoading: commenting } = api.event.sendComment.useMutation();
+
   const { event } = props;
   if (!event) {
     return;
   }
-
-  const { mutateAsync: comment, isLoading: commenting } = api.event.sendComment.useMutation();
-
-  const [msg, setMsg] = useState("");
 
   const sendComment = async () => {
     if (commenting) {

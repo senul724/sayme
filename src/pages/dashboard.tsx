@@ -1,5 +1,5 @@
-import { Comment } from "@prisma/client";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type { Comment } from "@prisma/client";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { signOut } from "next-auth/react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -70,7 +70,7 @@ export default function Dashboard({ comments, slug }: InferGetServerSidePropsTyp
                   className="py-2 mt-10 w-full text-xl font-semibold text-white rounded-2xl border-2 border-white sm:mx-10 sm:text-2xl hover:scale-105"
                   onClick={() => {
                     toast.success("link copied to clipboard!");
-                    navigator.clipboard.writeText(
+                    void navigator.clipboard.writeText(
                       `${getBaseUrl()}/${slug}`,
                     );
                   }}
