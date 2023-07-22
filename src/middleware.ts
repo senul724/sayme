@@ -7,11 +7,11 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if (path.startsWith("/") && token?.event && path !== "/dashboard") {
+  if (path === "/" && token?.event) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (path.startsWith("/dashboard") && !token?.event && path !== "/") {
+  if (path.startsWith("/dashboard") && !token?.event) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
